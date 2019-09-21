@@ -1,21 +1,21 @@
 #!/usr/bin/env python
-import apt
-import sys
+from __future__ import print_function
 
-pkgs = ['tgt', 'lvm2']
+import apt
+
+PKGS = ['lvm2', 'tgt', 'thin-provisioning-tools']
 
 cache = apt.cache.Cache()
 cache.update()
 cache.open()
 
-for pkg_name in pkgs:
+for pkg_name in PKGS:
     pkg = cache[pkg_name]
     if pkg.is_installed:
-	print "{pkg_name} already installed".format(pkg_name=pkg_name)
+        print("{} already installed".format(pkg_name))
     else:
-	pkg.mark_install()
-	try:
-	    cache.commit()
-	except Exception, arg:
-	    print >> sys.stderr, "Sorry, package installation failed [{err}]".format(err=str(arg))
-
+        pkg.mark_install()
+        try:
+            cache.commit()
+        except Exception:
+            raise EnvironmentError('Failed to install {}'.format(pkg_name))
