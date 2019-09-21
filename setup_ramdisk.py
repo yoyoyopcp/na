@@ -2,15 +2,11 @@
 from __future__ import print_function
 import argparse
 import os
-import shlex
-import subprocess
+
+from util import exec_cmd
 
 
 KB_TO_GB = 1024**2
-
-
-def exec_cmd(cmd):
-    return subprocess.check_output(shlex.split(cmd))
 
 
 def create_ramdisk(size):
