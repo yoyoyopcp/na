@@ -31,7 +31,7 @@ def create_ramdisk(size):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('size', type=int, default=5*KB_TO_GB,
+    parser.add_argument('--size', type=int, default=5*KB_TO_GB,
                         help='Size of ramdisk block device in KB.')
     args = parser.parse_args()
     bdev = create_ramdisk(args.size)
