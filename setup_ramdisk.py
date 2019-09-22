@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse
 import os
 
-from util import exec_cmd
+from lib.util import exec_cmd
 
 
 KB_TO_GB = 1024**2

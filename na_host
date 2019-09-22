@@ -2,21 +2,7 @@
 from __future__ import print_function
 import argparse
 
-from util import host_db
-
-
-def create_host(name, iqn):
-    with host_db() as db:
-        db[name] = iqn
-
-
-def delete_host(name):
-    with host_db() as db:
-        del db[name]
-
-
-def connect_host(name, vol):
-    pass
+from lib import host, vol
 
 
 def parse_args():
@@ -43,13 +29,13 @@ def parse_args():
 def main():
     args = parse_args()
     if args.command == 'create':
-        create_host(args.name, args.iqnlist)
+        host.create_host(args.name, args.iqnlist)
         print('Successfully created: {}'.format(args.name))
     elif args.command == 'delete':
-        delete_host(args.name)
+        host.delete_host(args.name)
         print('Successfully deleted: {}'.format(args.name))
     elif args.command == 'connect':
-        connect_host(args.name, args.vol)
+        vol.connect_vol(args.vol, args.name)
         print('Successfully connected {} to {}'.format(args.name, args.vol))
 
 

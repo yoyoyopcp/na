@@ -1,28 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import argparse
-import os
 
-from na_constants import FULL_LUN, VGROUP
-from util import exec_cmd
-
-
-def create_vol(name, size):
-    exec_cmd('lvcreate -T -V {} -n {} {}'.format(size, name, FULL_LUN))
-    if not os.path.exists('/dev/mapper/{}-{}'.format(VGROUP, name)):
-        raise EnvironmentError('Could not find path to {} in dev mapper'.format(name))
-
-
-def destroy_vol(name):
-    pass
-
-
-def eradicate_vol(name):
-    pass
-
-
-def connect_vol(name, host):
-    pass
+from lib import vol
 
 
 def parse_args():
@@ -54,16 +34,16 @@ def parse_args():
 def main():
     args = parse_args()
     if args.command == 'create':
-        create_vol(args.name, args.size)
+        vol.create_vol(args.name, args.size)
         print('Successfully created: {}'.format(args.name))
     elif args.command == 'destroy':
-        destroy_vol(args.name)
+        vol.destroy_vol(args.name)
         print('Successfully destroyed: {}'.format(args.name))
     elif args.command == 'eradicate':
-        eradicate_vol(args.name)
+        vol.eradicate_vol(args.name)
         print('Successfully eradicated: {}'.format(args.name))
     elif args.command == 'connect':
-        connect_vol(args.name, args.host)
+        vol.connect_vol(args.name, args.host)
         print('Successfully connected {} to {}'.format(args.name, args.vol))
 
 

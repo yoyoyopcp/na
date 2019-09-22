@@ -2,8 +2,8 @@
 from __future__ import print_function
 import argparse
 
-from na_constants import FULL_LUN, THINPOOL, VGROUP
-from util import exec_cmd
+from lib.na_constants import FULL_LUN, THINPOOL, VGROUP
+from lib.util import exec_cmd
 
 
 def setup_lun_pool(bdev):
