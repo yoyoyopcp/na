@@ -27,6 +27,9 @@ def parse_args():
     connect_parser = subparsers.add_parser('connect', help='Connect a volume to a host.')
     connect_parser.add_argument('name', help='Name of vol to connect.')
     connect_parser.add_argument('--host', required=True, help='Name of host to connect to.')
+    # na_vol list
+    list_parser = subparsers.add_parser('list', help='List volumes.')
+    list_parser.add_argument('names', nargs='*', help='Name of volumes to list.')
 
     return parser.parse_args()
 
@@ -45,6 +48,8 @@ def main():
     elif args.command == 'connect':
         vol.connect_vol(args.name, args.host)
         print('Successfully connected {} to {}'.format(args.name, args.vol))
+    elif args.command == 'list':
+        print('\n'.join(vol.list_vols(args.names)))
 
 
 if __name__ == "__main__":

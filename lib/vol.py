@@ -20,3 +20,10 @@ def eradicate_vol(name):
 
 def connect_vol(name, host):
     pass
+
+
+def list_vols(names):
+    all_vols = os.listdir('/dev/{}'.format(VGROUP))
+    if not names:
+        return all_vols
+    return [vol for vol in names if vol in all_vols]
