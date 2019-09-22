@@ -1,23 +1,56 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import argparse
-import dbm
 
-from na_constants import HOSTS_DB
+from util import host_db
 
 
 def create_host(name, iqn):
-    db = dbm.open(HOSTS_DB, 'c')
-    db[name] = iqn
+    with host_db() as db:
+        db[name] = iqn
+
+
+def delete_host(name):
+    with host_db() as db:
+        del db[name]
+
+
+def connect_host(name, vol):
+    pass
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(title='subcommands',
+                                       description='valid subcommands',
+                                       dest='command')
+    # na_host create
+    create_parser = subparsers.add_parser('create', help='Create a host.')
+    create_parser.add_argument('name', help='Name of host to create.')
+    create_parser.add_argument('--iqnlist', help='IQNs of host.')
+
+    # na_host delete
+    delete_parser = subparsers.add_parser('delete', help='Delete a host.')
+    delete_parser.add_argument('name', help='Name of host to delete.')
+
+    # na_host connect
+    connect_parser = subparsers.add_parser('connect', help='Connect a host.')
+    connect_parser.add_argument('name', help='Name of host to connect.')
+    connect_parser.add_argument('--vol', help='Name of volume to connect.')
+    return parser.parse_args()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('name', help='Name of host to create.')
-    parser.add_argument('iqn', help='IQN of host to create.')
-    args = parser.parse_args()
-    create_host(args.name, args.iqn)
-    print('Successfully created: {}'.format(args.name))
+    args = parse_args()
+    if args.command == 'create':
+        create_host(args.name, args.iqnlist)
+        print('Successfully created: {}'.format(args.name))
+    elif args.command == 'delete':
+        delete_host(args.name)
+        print('Successfully deleted: {}'.format(args.name))
+    elif args.command == 'connect':
+        connect_host(args.name, args.vol)
+        print('Successfully connected {} to {}'.format(args.name, args.vol))
 
 
 if __name__ == "__main__":

@@ -7,19 +7,64 @@ from na_constants import FULL_LUN, VGROUP
 from util import exec_cmd
 
 
-def create_lv(name, size):
+def create_vol(name, size):
     exec_cmd('lvcreate -T -V {} -n {} {}'.format(size, name, FULL_LUN))
     if not os.path.exists('/dev/mapper/{}-{}'.format(VGROUP, name)):
         raise EnvironmentError('Could not find path to {} in dev mapper'.format(name))
 
 
-def main():
+def destroy_vol(name):
+    pass
+
+
+def eradicate_vol(name):
+    pass
+
+
+def connect_vol(name, host):
+    pass
+
+
+def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', help='Name of LUN to create.')
-    parser.add_argument('--size', required=True, help='LUN size.')
-    args = parser.parse_args()
-    create_lv(args.name, args.size)
-    print('Successfully created: {}'.format(args.name))
+    subparsers = parser.add_subparsers(title='subcommands',
+                                       description='valid subcommands',
+                                       dest='command')
+    # na_vol create
+    create_parser = subparsers.add_parser('create', help='Create a volume.')
+    create_parser.add_argument('name', help='Name of volume to create.')
+    create_parser.add_argument('--size', required=True, help='volume size.')
+
+    # na_vol destroy
+    destroy_parser = subparsers.add_parser('destroy', help='Destroy a volume.')
+    destroy_parser.add_argument('name', help='Name of volume to destroy.')
+
+    # na_vol eradicate
+    eradicate_parser = subparsers.add_parser('eradicate', help='Eradicate a volume.')
+    eradicate_parser.add_argument('name', help='Name of volume to eradicate.')
+
+    # na_vol connect
+    connect_parser = subparsers.add_parser('connect', help='Connect a volume to a host.')
+    connect_parser.add_argument('name', help='Name of vol to connect.')
+    connect_parser.add_argument('--host', required=True, help='Name of host to connect to.')
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    if args.command == 'create':
+        create_vol(args.name, args.size)
+        print('Successfully created: {}'.format(args.name))
+    elif args.command == 'destroy':
+        destroy_vol(args.name)
+        print('Successfully destroyed: {}'.format(args.name))
+    elif args.command == 'eradicate':
+        eradicate_vol(args.name)
+        print('Successfully eradicated: {}'.format(args.name))
+    elif args.command == 'connect':
+        connect_vol(args.name, args.host)
+        print('Successfully connected {} to {}'.format(args.name, args.vol))
 
 
 if __name__ == "__main__":
