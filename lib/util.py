@@ -6,10 +6,12 @@ import subprocess
 from na_constants import HOSTS_DB
 
 
-def exec_cmd(cmd):
+def exec_cmd(cmd, quiet=False):
     try:
         return subprocess.check_output(shlex.split(cmd), stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
+        if quiet:
+            return
         if not exc.output:
             raise
         raise RuntimeError('{}\nOutput: {}'.format(cmd, exc.output.strip()))
