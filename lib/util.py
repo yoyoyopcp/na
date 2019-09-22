@@ -1,7 +1,11 @@
+from __future__ import print_function
+
 import contextlib
 import dbm
 import shlex
 import subprocess
+import sys
+import time
 
 from na_constants import HOSTS_DB
 
@@ -17,6 +21,11 @@ def exec_cmd(cmd, quiet=False):
         raise RuntimeError('{}\nOutput: {}'.format(cmd, exc.output.strip()))
 
 
+def exit_with_msg(msg):
+    print(msg)
+    sys.exit(1)
+
+
 @contextlib.contextmanager
 def host_db():
     db = dbm.open(HOSTS_DB, 'c')
@@ -24,3 +33,7 @@ def host_db():
         yield db
     finally:
         db.close()
+
+
+def localtz():
+    return time.tzname[time.daylight]

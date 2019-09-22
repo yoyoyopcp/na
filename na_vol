@@ -2,7 +2,24 @@
 from __future__ import print_function
 import argparse
 
+from lib import util
 from lib import vol
+
+
+def print_vol_info(names):
+    header = 'Name Size Source Created Serial'.split()
+
+    vol_info = [[v[key.lower()] for key in header] for v in vol.list_vols(names)]
+    if not vol_info:
+        return
+
+    vol_info.insert(0, header)
+    lens = []
+    for col in zip(*vol_info):
+        lens.append(max([len(v) for v in col]))
+    format_ = "  ".join(["{:<" + str(l) + "}" for l in lens])
+    for row in vol_info:
+        print(format_.format(*row))
 
 
 def parse_args():
@@ -18,6 +35,10 @@ def parse_args():
     # na_vol destroy
     destroy_parser = subparsers.add_parser('destroy', help='Destroy a volume.')
     destroy_parser.add_argument('name', help='Name of volume to destroy.')
+
+    # na_vol recover
+    recover_parser = subparsers.add_parser('recover', help='Recover a destroyed volume.')
+    recover_parser.add_argument('name', help='Name of volume to recover.')
 
     # na_vol eradicate
     eradicate_parser = subparsers.add_parser('eradicate', help='Eradicate a volume.')
@@ -42,6 +63,9 @@ def main():
     elif args.command == 'destroy':
         vol.destroy_vol(args.name)
         print('Successfully destroyed: {}'.format(args.name))
+    elif args.command == 'recover':
+        vol.recover_vol(args.name)
+        print('Successfully recovered: {}'.format(args.name))
     elif args.command == 'eradicate':
         vol.eradicate_vol(args.name)
         print('Successfully eradicated: {}'.format(args.name))
@@ -49,7 +73,7 @@ def main():
         vol.connect_vol(args.name, args.host)
         print('Successfully connected {} to {}'.format(args.name, args.vol))
     elif args.command == 'list':
-        print('\n'.join(vol.list_vols(args.names)))
+        print_vol_info(args.names)
 
 
 if __name__ == "__main__":
