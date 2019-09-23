@@ -8,18 +8,11 @@ from lib import vol
 
 def print_vol_info(names):
     header = 'Name Size Source Created Serial'.split()
-
     vol_info = [[v[key.lower()] for key in header] for v in vol.list_vols(names)]
     if not vol_info:
         return
-
     vol_info.insert(0, header)
-    lens = []
-    for col in zip(*vol_info):
-        lens.append(max([len(v) for v in col]))
-    format_ = "  ".join(["{:<" + str(l) + "}" for l in lens])
-    for row in vol_info:
-        print(format_.format(*row))
+    util.print_columns(header, vol_info)
 
 
 def parse_args():
@@ -48,9 +41,21 @@ def parse_args():
     connect_parser = subparsers.add_parser('connect', help='Connect a volume to a host.')
     connect_parser.add_argument('name', help='Name of vol to connect.')
     connect_parser.add_argument('--host', required=True, help='Name of host to connect to.')
+
+    # na_vol disconnect
+    disconnect_parser = subparsers.add_parser('disconnect',
+                                              help='Disconnect a volume from a host.')
+    disconnect_parser.add_argument('name', help='Name of vol to disconnect.')
+    disconnect_parser.add_argument('--host', required=True, help='Name of host to disconnect to.')
+
     # na_vol list
     list_parser = subparsers.add_parser('list', help='List volumes.')
     list_parser.add_argument('names', nargs='*', help='Name of volumes to list.')
+
+    # na_vol rename
+    rename_parser = subparsers.add_parser('rename', help='Rename a volume.')
+    rename_parser.add_argument('old_name', help='Name of volume to rename.')
+    rename_parser.add_argument('new_name', help='New name of volume.')
 
     return parser.parse_args()
 
@@ -59,21 +64,18 @@ def main():
     args = parse_args()
     if args.command == 'create':
         vol.create_vol(args.name, args.size)
-        print('Successfully created: {}'.format(args.name))
     elif args.command == 'destroy':
         vol.destroy_vol(args.name)
-        print('Successfully destroyed: {}'.format(args.name))
     elif args.command == 'recover':
         vol.recover_vol(args.name)
-        print('Successfully recovered: {}'.format(args.name))
     elif args.command == 'eradicate':
         vol.eradicate_vol(args.name)
-        print('Successfully eradicated: {}'.format(args.name))
     elif args.command == 'connect':
         vol.connect_vol(args.name, args.host)
-        print('Successfully connected {} to {}'.format(args.name, args.vol))
     elif args.command == 'list':
         print_vol_info(args.names)
+    elif args.command == 'rename':
+        vol.rename_vol(args.old_name, args.new_name)
 
 
 if __name__ == "__main__":

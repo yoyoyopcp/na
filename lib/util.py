@@ -37,3 +37,12 @@ def host_db():
 
 def localtz():
     return time.tzname[time.daylight]
+
+
+def print_columns(rows):
+    lens = []
+    for col in zip(*rows):
+        lens.append(max([len(v) for v in col]))
+    format_ = "  ".join(["{:<" + str(l) + "}" for l in lens])
+    for row in rows:
+        print(format_.format(*row))

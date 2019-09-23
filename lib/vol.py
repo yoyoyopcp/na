@@ -5,7 +5,12 @@ import util
 
 
 def create_vol(name, size):
-    util.exec_cmd('lvcreate -T -V {} -n {} {}'.format(size, name, FULL_LUN))
+    try:
+        util.exec_cmd('lvcreate -T -V {} -n {} {}'.format(size, name, FULL_LUN))
+    except RuntimeError as exc:
+        if 'already exists' in str(exc):
+            util.exit_with_msg('Error on {}: Volume already exists'.format(name))
+        raise
     if not os.path.exists('/dev/mapper/{}-{}'.format(VGROUP, name)):
         raise EnvironmentError('Could not find path to {} in dev mapper'.format(name))
 
@@ -27,7 +32,14 @@ def connect_vol(name, host):
 
 
 def rename_vol(old_name, new_name):
-    util.exec_cmd('lvrename {}/{} {}'.format(VGROUP, old_name, new_name))
+    try:
+        util.exec_cmd('lvrename {}/{} {}'.format(VGROUP, old_name, new_name))
+    except RuntimeError as exc:
+        if 'already exists' in str(exc):
+            util.exit_with_msg('Error on {}: Volume already exists.'.format(new_name))
+        elif 'not found in' in str(exc):
+            util.exit_with_msg('Error on {}: Volume does not exist.'.format(old_name))
+        raise
 
 
 def list_vols(names):

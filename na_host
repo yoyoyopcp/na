@@ -2,7 +2,16 @@
 from __future__ import print_function
 import argparse
 
-from lib import host, vol
+from lib import host, util, vol
+
+
+def print_host_info(names):
+    header = ['Name', 'WWN', 'IQN', 'Host Group']
+    host_info = [[h[key.lower()] for key in header] for h in host.list_hosts(names)]
+    if not host_info:
+        return
+    host_info.insert(0, header)
+    util.print_columns(host_info)
 
 
 def parse_args():
@@ -20,9 +29,19 @@ def parse_args():
     delete_parser.add_argument('name', help='Name of host to delete.')
 
     # na_host connect
-    connect_parser = subparsers.add_parser('connect', help='Connect a host.')
+    connect_parser = subparsers.add_parser('connect', help='Connect a host to a volume.')
     connect_parser.add_argument('name', help='Name of host to connect.')
     connect_parser.add_argument('--vol', help='Name of volume to connect.')
+
+    # na_host disconnect
+    disconnect_parser = subparsers.add_parser('disconnect',
+                                              help='Disconnect a host from a volume.')
+    disconnect_parser.add_argument('name', help='Name of host to disconnect.')
+    disconnect_parser.add_argument('--vol', help='Name of volume to disconnect.')
+
+    # na_host list
+    list_parser = subparsers.add_parser('list', help='List hosts.')
+    list_parser.add_argument('names', nargs='*', help='Names of hosts to list.')
     return parser.parse_args()
 
 
@@ -30,13 +49,12 @@ def main():
     args = parse_args()
     if args.command == 'create':
         host.create_host(args.name, args.iqnlist)
-        print('Successfully created: {}'.format(args.name))
     elif args.command == 'delete':
         host.delete_host(args.name)
-        print('Successfully deleted: {}'.format(args.name))
     elif args.command == 'connect':
         vol.connect_vol(args.vol, args.name)
-        print('Successfully connected {} to {}'.format(args.name, args.vol))
+    elif args.command == 'list':
+        print_host_info(args.names)
 
 
 if __name__ == "__main__":
