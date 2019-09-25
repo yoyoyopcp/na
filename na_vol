@@ -6,13 +6,17 @@ from lib import util
 from lib import vol
 
 
+def print_connected_vol_info(names):
+    pass
+
+
 def print_vol_info(names):
     header = 'Name Size Source Created Serial'.split()
     vol_info = [[v[key.lower()] for key in header] for v in vol.list_vols(names)]
     if not vol_info:
         return
     vol_info.insert(0, header)
-    util.print_columns(header, vol_info)
+    util.print_columns(vol_info)
 
 
 def parse_args():
@@ -51,6 +55,8 @@ def parse_args():
     # na_vol list
     list_parser = subparsers.add_parser('list', help='List volumes.')
     list_parser.add_argument('names', nargs='*', help='Name of volumes to list.')
+    list_parser.add_argument('--connect', action='store_true',
+                             help='List connected volumes.')
 
     # na_vol rename
     rename_parser = subparsers.add_parser('rename', help='Rename a volume.')
@@ -72,8 +78,13 @@ def main():
         vol.eradicate_vol(args.name)
     elif args.command == 'connect':
         vol.connect_vol(args.name, args.host)
+    elif args.command == 'disconnect':
+        vol.disconnect_vol(args.name, args.host)
     elif args.command == 'list':
-        print_vol_info(args.names)
+        if args.connect:
+            print_connected_vol_info(args.names)
+        else:
+            print_vol_info(args.names)
     elif args.command == 'rename':
         vol.rename_vol(args.old_name, args.new_name)
 

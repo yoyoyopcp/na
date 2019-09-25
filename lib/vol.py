@@ -1,6 +1,7 @@
 import os
 
 from na_constants import FULL_LUN, VGROUP
+import vol
 import util
 
 
@@ -28,7 +29,34 @@ def eradicate_vol(name):
 
 
 def connect_vol(name, host):
-    pass
+    vol_info = vol.list_vols([name])[0]
+    with util.host_db() as db:
+        if host not in db:
+            util.exit_with_msg('Error on {}: Host does not exist.'.format(host))
+        iqn = db[host]
+    vol_path = '/dev/mapper/{}'.format(vol_info['name'])
+    lun_number = util.get_unused_lun()
+    util.exec_cmd('tgtadm --lld iscsi --op new --mode logicalunit --tid 1 '
+                  '--lun {} -b {}'.format(lun_number, vol_path))
+    util.exec_cmd('tgtadm --lld iscsi --op update --mode logicalunit --tid 1 '
+                  '--lun {} --params scsi_sn={},vendor_id=PURESTORAGE'
+                  .format(lun_number, vol_info['serial']))
+    try:
+        util.exec_cmd('tgtadm --lld iscsi --op bind --mode target --tid 1 -I ALL')
+    except RuntimeError as exc:
+        if 'rule already exists' not in str(exc):
+            raise
+
+
+def disconnect_vol(name, host):
+    vol_info = vol.list_vols([name])[0]
+    with util.host_db() as db:
+        if host not in db:
+            util.exit_with_msg('Error on {}: Host does not exist.'.format(host))
+        iqn = db[host]
+    lun_number = util.get_lun_number(name)
+    util.exec_cmd('tgtadm --lld iscsi --op delete --mode logicalunit --tid 1 '
+                  '--lun {}'.format(lun_number))
 
 
 def rename_vol(old_name, new_name):
@@ -40,6 +68,12 @@ def rename_vol(old_name, new_name):
         elif 'not found in' in str(exc):
             util.exit_with_msg('Error on {}: Volume does not exist.'.format(old_name))
         raise
+
+
+def list_connected_vols(names):
+    vols = []
+    for vol, lun_num in get_luns():
+        pass
 
 
 def list_vols(names):
