@@ -34,7 +34,7 @@ def connect_vol(name, host):
         if host not in db:
             util.exit_with_msg('Error on {}: Host does not exist.'.format(host))
         iqn = db[host]
-    vol_path = '/dev/mapper/{}'.format(vol_info['name'])
+    vol_path = '/dev/mapper/{}-{}'.format(VGROUP, vol_info['name'])
     lun_number = util.get_unused_lun()
     util.exec_cmd('tgtadm --lld iscsi --op new --mode logicalunit --tid 1 '
                   '--lun {} -b {}'.format(lun_number, vol_path))
