@@ -7,7 +7,7 @@ from lib.util import exec_cmd
 
 def ssd_reset():
     exec_cmd('vgremove -f {}'.format(VGROUP), quiet=True)
-    exec_cmd('modprobe -r brd')
+    exec_cmd('modprobe -r brd', quiet=True)
     shutil.unlink(HOSTS_DB)
 
 
