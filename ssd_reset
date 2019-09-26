@@ -8,7 +8,10 @@ from lib.util import exec_cmd
 def ssd_reset():
     exec_cmd('vgremove -f {}'.format(VGROUP), quiet=True)
     exec_cmd('modprobe -r brd', quiet=True)
-    os.unlink(HOSTS_DB)
+    try:
+        os.unlink(HOSTS_DB)
+    except OSError:
+        pass
 
 
 if __name__ == '__main__':
